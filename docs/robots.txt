@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://princeadedapo.github.io/avatar-blast/sitemap.xml
