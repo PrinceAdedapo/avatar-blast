@@ -173,6 +173,9 @@
   }
   </script>
 
+  <!-- ═══ ANALYTICS — GoatCounter (free, no cookies, privacy-friendly) ═══ -->
+  <script data-goatcounter="https://avatar-blast.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+
   <!-- ═══ FONTS ═══ -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -321,7 +324,7 @@
     .section-tag { font-family: var(--font-display); font-size: 0.62rem; font-weight: 700; color: var(--gold); letter-spacing: 4px; text-transform: uppercase; margin-bottom: 12px; }
     .section-title { font-family: var(--font-display); font-size: clamp(1.5rem, 4vw, 2.3rem); font-weight: 900; color: #fff; margin-bottom: 12px; }
     .section-desc { color: var(--text-dim); font-size: 0.92rem; max-width: 540px; line-height: 1.7; margin-bottom: 52px; }
-    .ss-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 700px; margin: 0 auto; }
+    .ss-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 920px; margin: 0 auto; }
     .ss-card {
       border-radius: 20px; overflow: hidden;
       border: 1px solid rgba(255,255,255,0.05);
@@ -389,6 +392,8 @@
     .cta-meta { display: flex; justify-content: center; gap: 24px; margin: 28px 0 36px; flex-wrap: wrap; }
     .cta-meta span { display: flex; align-items: center; gap: 8px; font-size: 0.76rem; color: var(--text-dim); }
     .cta-meta .dot { width: 5px; height: 5px; background: var(--gold); border-radius: 50%; }
+    .dl-counter { margin-top: 18px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.78rem; color: var(--text-dim); opacity: 0.85; }
+    .dl-counter svg { fill: var(--gold); }
 
     /* ═══ FOOTER ═══ */
     footer { border-top: 1px solid rgba(255,255,255,0.04); padding: 44px 24px; text-align: center; position: relative; z-index: 2; }
@@ -465,7 +470,7 @@
     </div>
   </section>
 
-  <!-- Screenshots — Zuko & Aang -->
+  <!-- Screenshots — Zuko, Korra & Sokka -->
   <section id="screenshots" class="screenshots">
     <div class="container">
       <div class="reveal">
@@ -479,8 +484,12 @@
           <div class="ss-label">🔥 Zuko — Fire Bending</div>
         </div>
         <div class="ss-card reveal rd2">
-          <img src="img/ss-aang.jpg" alt="Avatar Blast - Aang using Cyclone and Avatar State against Fire Nation Commander, Combo x3 Air Blast" loading="lazy" width="768" height="1024" />
-          <div class="ss-label">💨 Aang — Air Bending</div>
+          <img src="img/ss-korra.jpg" alt="Avatar Blast - Korra in Avatar State using water and spirit bending powers in epic battle" loading="lazy" width="768" height="1024" />
+          <div class="ss-label">🌀 Korra — Avatar State</div>
+        </div>
+        <div class="ss-card reveal rd1">
+          <img src="img/ss-sokka.jpg" alt="Avatar Blast - Sokka with boomerang strategy in Earth Kingdom battle against enemies" loading="lazy" width="768" height="1024" />
+          <div class="ss-label">⚔️ Sokka — Strategy</div>
         </div>
       </div>
     </div>
@@ -608,10 +617,14 @@
           <span><span class="dot"></span> No Permissions</span>
           <span><span class="dot"></span> 6 Benders</span>
         </div>
-        <a href="https://github.com/PrinceAdedapo/avatar-blast/releases/latest/download/avatar-blast.apk" class="btn-dl" aria-label="Download Avatar Blast free APK">
+        <a href="https://github.com/PrinceAdedapo/avatar-blast/releases/latest/download/avatar-blast.apk" class="btn-dl" id="cta-dl-btn" aria-label="Download Avatar Blast free APK" onclick="trackDownload()">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 15v3H6v-3H4v3c0 1.1.9 2 2 2h12a2 2 0 002-2v-3h-2zm-1-4l-1.41-1.41L13 12.17V4h-2v8.17L8.41 9.59 7 11l5 5 5-5z"/></svg>
           Download Free APK (v1.0.0)
         </a>
+        <div class="dl-counter" id="dl-counter">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" style="width:16px;height:16px"><path d="M18 15v3H6v-3H4v3c0 1.1.9 2 2 2h12a2 2 0 002-2v-3h-2zm-1-4l-1.41-1.41L13 12.17V4h-2v8.17L8.41 9.59 7 11l5 5 5-5z"/></svg>
+          <span id="dl-count">—</span> downloads
+        </div>
       </div>
     </div>
   </section>
@@ -632,6 +645,29 @@
       entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
     }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
     document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+    // ═══ DOWNLOAD COUNTER — fetches real count from GitHub Releases API ═══
+    (async function loadDownloadCount() {
+      try {
+        const res = await fetch('https://api.github.com/repos/PrinceAdedapo/avatar-blast/releases');
+        const releases = await res.json();
+        let total = 0;
+        releases.forEach(r => r.assets.forEach(a => { total += a.download_count; }));
+        const el = document.getElementById('dl-count');
+        if (el) el.textContent = total.toLocaleString();
+      } catch(e) { /* silent fail */ }
+    })();
+
+    // ═══ TRACK DOWNLOAD CLICKS — GoatCounter event + console log ═══
+    function trackDownload() {
+      // GoatCounter custom event
+      if (window.goatcounter && window.goatcounter.count) {
+        window.goatcounter.count({ path: 'download-apk', title: 'APK Download Click', event: true });
+      }
+      console.log('[Avatar Blast] Download tracked at', new Date().toISOString());
+    }
+    // Also track nav CTA
+    document.querySelectorAll('.nav-cta').forEach(a => a.addEventListener('click', trackDownload));
   </script>
 
 </body>
