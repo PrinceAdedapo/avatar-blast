@@ -617,7 +617,7 @@
           <span><span class="dot"></span> No Permissions</span>
           <span><span class="dot"></span> 6 Benders</span>
         </div>
-        <a href="https://github.com/PrinceAdedapo/avatar-blast/releases/latest/download/avatar-blast.apk" class="btn-dl" id="cta-dl-btn" aria-label="Download Avatar Blast free APK" onclick="trackDownload()">
+        <a href="https://github.com/PrinceAdedapo/avatar-blast/releases/latest/download/avatar-blast.apk" class="btn-dl" id="cta-dl-btn" aria-label="Download Avatar Blast free APK">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 15v3H6v-3H4v3c0 1.1.9 2 2 2h12a2 2 0 002-2v-3h-2zm-1-4l-1.41-1.41L13 12.17V4h-2v8.17L8.41 9.59 7 11l5 5 5-5z"/></svg>
           Download Free APK (v1.0.0)
         </a>
@@ -646,28 +646,80 @@
     }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
     document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 
-    // ═══ DOWNLOAD COUNTER — fetches real count from GitHub Releases API ═══
+    // ═══════════════════════════════════════════════════════════════════════
+    // DOWNLOAD TRACKER — Supabase (free tier)
+    // Logs: IP, city, country, timestamp, user_agent
+    // Counts: every click, even duplicates from same user
+    // ═══════════════════════════════════════════════════════════════════════
+
+    // ⚠️ REPLACE THESE with your Supabase project values:
+    const SUPABASE_URL = 'https://YOUR_PROJECT_ID.supabase.co';
+    const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY_HERE';
+
+    // Load download count on page load
     (async function loadDownloadCount() {
       try {
-        const res = await fetch('https://api.github.com/repos/PrinceAdedapo/avatar-blast/releases');
-        const releases = await res.json();
-        let total = 0;
-        releases.forEach(r => r.assets.forEach(a => { total += a.download_count; }));
+        // Try Supabase first (real click count)
+        const res = await fetch(SUPABASE_URL + '/rest/v1/downloads?select=id', {
+          headers: { 'apikey': SUPABASE_ANON_KEY, 'Prefer': 'count=exact' }
+        });
+        const count = res.headers.get('content-range');
+        if (count) {
+          const total = parseInt(count.split('/')[1]) || 0;
+          const el = document.getElementById('dl-count');
+          if (el && total > 0) { el.textContent = total.toLocaleString(); return; }
+        }
+        // Fallback: GitHub Releases API
+        const ghRes = await fetch('https://api.github.com/repos/PrinceAdedapo/avatar-blast/releases');
+        const releases = await ghRes.json();
+        let ghTotal = 0;
+        releases.forEach(r => r.assets.forEach(a => { ghTotal += a.download_count; }));
         const el = document.getElementById('dl-count');
-        if (el) el.textContent = total.toLocaleString();
-      } catch(e) { /* silent fail */ }
+        if (el && ghTotal > 0) el.textContent = ghTotal.toLocaleString();
+      } catch(e) { /* silent */ }
     })();
 
-    // ═══ TRACK DOWNLOAD CLICKS — GoatCounter event + console log ═══
-    function trackDownload() {
-      // GoatCounter custom event
+    // Track download click — logs IP, location, user agent to Supabase
+    async function trackDownload() {
+      try {
+        // Get visitor IP + location (free, no key needed)
+        const geo = await fetch('https://ipapi.co/json/').then(r => r.json()).catch(() => ({}));
+
+        // Log to Supabase
+        await fetch(SUPABASE_URL + '/rest/v1/downloads', {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({
+            ip: geo.ip || 'unknown',
+            city: geo.city || 'unknown',
+            country: geo.country_name || 'unknown',
+            region: geo.region || 'unknown',
+            user_agent: navigator.userAgent,
+            referrer: document.referrer || 'direct'
+          })
+        });
+
+        // Update visible counter immediately
+        const el = document.getElementById('dl-count');
+        if (el) {
+          const current = parseInt(el.textContent.replace(/,/g, '')) || 0;
+          el.textContent = (current + 1).toLocaleString();
+        }
+      } catch(e) { /* don't block download */ }
+
+      // GoatCounter event (backup)
       if (window.goatcounter && window.goatcounter.count) {
-        window.goatcounter.count({ path: 'download-apk', title: 'APK Download Click', event: true });
+        window.goatcounter.count({ path: 'download-apk', title: 'APK Download', event: true });
       }
-      console.log('[Avatar Blast] Download tracked at', new Date().toISOString());
     }
-    // Also track nav CTA
-    document.querySelectorAll('.nav-cta').forEach(a => a.addEventListener('click', trackDownload));
+
+    // Attach to all download links
+    document.querySelectorAll('.btn-dl, .nav-cta').forEach(a => a.addEventListener('click', trackDownload));
   </script>
 
 </body>
