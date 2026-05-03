@@ -401,8 +401,7 @@
     .cta-meta { display: flex; justify-content: center; gap: 24px; margin: 28px 0 36px; flex-wrap: wrap; }
     .cta-meta span { display: flex; align-items: center; gap: 8px; font-size: 0.76rem; color: var(--text-dim); }
     .cta-meta .dot { width: 5px; height: 5px; background: var(--gold); border-radius: 50%; }
-    .dl-counter { margin-top: 18px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.78rem; color: var(--text-dim); opacity: 0.85; }
-    .dl-counter svg { fill: var(--gold); }
+
 
     /* ═══ FOOTER ═══ */
     footer { border-top: 1px solid rgba(255,255,255,0.04); padding: 44px 24px; text-align: center; position: relative; z-index: 2; }
@@ -630,10 +629,7 @@
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 15v3H6v-3H4v3c0 1.1.9 2 2 2h12a2 2 0 002-2v-3h-2zm-1-4l-1.41-1.41L13 12.17V4h-2v8.17L8.41 9.59 7 11l5 5 5-5z"/></svg>
           Download Free APK (v1.0.0)
         </a>
-        <div class="dl-counter" id="dl-counter">
-          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" style="width:16px;height:16px"><path d="M18 15v3H6v-3H4v3c0 1.1.9 2 2 2h12a2 2 0 002-2v-3h-2zm-1-4l-1.41-1.41L13 12.17V4h-2v8.17L8.41 9.59 7 11l5 5 5-5z"/></svg>
-          <span id="dl-count">—</span> downloads
-        </div>
+
       </div>
     </div>
   </section>
@@ -666,15 +662,7 @@
     // ⚠️ PASTE YOUR GITHUB PAT HERE (fine-grained, only "Contents: Read & Write" on this repo):
     const GH_TOKEN = 'YOUR_GITHUB_PAT_HERE';
 
-    // Load download count on page load (no auth needed — public repo)
-    (async function loadDownloadCount() {
-      try {
-        const res = await fetch('https://princeadedapo.github.io/avatar-blast/downloads.json?t=' + Date.now());
-        const data = await res.json();
-        const el = document.getElementById('dl-count');
-        if (el) el.textContent = (data.count || 0).toLocaleString();
-      } catch(e) { /* silent */ }
-    })();
+
 
     // Track download click — saves IP, location, timestamp to GitHub JSON
     async function trackDownload() {
@@ -716,9 +704,7 @@
           })
         });
 
-        // Update counter on page immediately
-        const el = document.getElementById('dl-count');
-        if (el) el.textContent = current.count.toLocaleString();
+
       } catch(e) { console.log('track error', e); }
     }
 
