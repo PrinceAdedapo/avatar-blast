@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Avatar Blast — Elemental Match-3 Puzzle Game</title>
+  <meta name="description" content="Match gems, unleash elemental powers & save the world in this action-packed puzzle game. Download free for Android." />
+  <meta name="theme-color" content="#0a0818" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --gold: #ffd700;
+      --gold-dim: rgba(255, 215, 0, 0.15);
+      --bg-deep: #0a0818;
+      --bg-card: rgba(15, 12, 40, 0.85);
+      --text: #e8e6f0;
+      --text-dim: rgba(255, 255, 255, 0.55);
+      --accent-fire: #ff6b6b;
+      --accent-water: #4ecdc4;
+      --accent-earth: #2ed573;
+      --accent-air: #a29bfe;
+      --radius: 16px;
+      --font-display: 'Orbitron', sans-serif;
+      --font-body: 'Inter', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-deep);
+      color: var(--text);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* ═══ ANIMATED BACKGROUND ═══ */
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background-image:
+        linear-gradient(rgba(255, 215, 0, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 215, 0, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: gridPulse 8s ease-in-out infinite;
+    }
+
+    @keyframes gridPulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 0.8; }
+    }
+
+    .bg-orbs {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.3;
+      animation: orbFloat 12s ease-in-out infinite;
+    }
+
+    .orb-1 { width: 400px; height: 400px; background: var(--accent-fire); top: -100px; right: -100px; animation-delay: 0s; }
+    .orb-2 { width: 350px; height: 350px; background: var(--accent-water); bottom: -80px; left: -80px; animation-delay: -4s; }
+    .orb-3 { width: 300px; height: 300px; background: var(--accent-air); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -8s; }
+
+    @keyframes orbFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -20px) scale(1.05); }
+      66% { transform: translate(-20px, 30px) scale(0.95); }
+    }
+
+    /* ═══ LAYOUT ═══ */
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ═══ HEADER / NAV ═══ */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 16px 24px;
+      background: rgba(10, 8, 24, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 215, 0, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: var(--gold);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--gold); }
+
+    /* ═══ HERO ═══ */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+      gap: 32px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--gold-dim);
+      border: 1px solid rgba(255, 215, 0, 0.2);
+      border-radius: 100px;
+      padding: 8px 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .hero-badge::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: var(--gold);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 8vw, 5rem);
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -1px;
+    }
+
+    .hero-title .gold { color: var(--gold); }
+    .hero-title .white { color: #fff; }
+
+    .hero-subtitle {
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+      color: var(--text-dim);
+      max-width: 600px;
+      line-height: 1.7;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 32px;
+      border-radius: 8px;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: all 0.25s ease;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gold), #ffaa00);
+      color: #0a0800;
+      box-shadow: 0 4px 24px rgba(255, 215, 0, 0.3), 0 0 60px rgba(255, 215, 0, 0.1);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(255, 215, 0, 0.4), 0 0 80px rgba(255, 215, 0, 0.15);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 215, 0, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .btn-icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* ═══ STATS BAR ═══ */
+    .stats-bar {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      padding: 32px 0;
+      margin-top: 40px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--gold);
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* ═══ SECTIONS ═══ */
+    section {
+      padding: 100px 0;
+    }
+
+    .section-label {
+      font-family: var(--font-display);
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.5rem, 4vw, 2.2rem);
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+
+    .section-desc {
+      color: var(--text-dim);
+      max-width: 560px;
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+
+    /* ═══ FEATURES GRID ═══ */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-top: 48px;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: var(--radius);
+      padding: 32px;
+      transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(255, 215, 0, 0.2);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 20px;
+    }
+
+    .fi-fire { background: rgba(255, 107, 107, 0.15); }
+    .fi-water { background: rgba(78, 205, 196, 0.15); }
+    .fi-earth { background: rgba(46, 213, 115, 0.15); }
+    .fi-air { background: rgba(162, 155, 254, 0.15); }
+    .fi-gold { background: var(--gold-dim); }
+    .fi-star { background: rgba(255, 215, 0, 0.1); }
+
+    .feature-card h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+
+    .feature-card p {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    /* ═══ SPECIALS SECTION ═══ */
+    .specials-list {
+      margin-top: 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .special-item {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: var(--bg-card);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: var(--radius);
+      padding: 24px 28px;
+      transition: all 0.3s ease;
+    }
+
+    .special-item:hover {
+      border-color: rgba(255, 215, 0, 0.2);
+      transform: translateX(6px);
+    }
+
+    .special-badge {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .special-item h4 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .special-item p {
+      font-size: 0.82rem;
+      color: var(--text-dim);
+    }
+
+    /* ═══ DOWNLOAD SECTION ═══ */
+    .download-section {
+      text-align: center;
+      padding: 120px 24px;
+    }
+
+    .download-card {
+      background: linear-gradient(160deg, rgba(255, 215, 0, 0.08), rgba(15, 12, 40, 0.9));
+      border: 1px solid rgba(255, 215, 0, 0.15);
+      border-radius: 24px;
+      padding: 64px 40px;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .download-card .section-title {
+      margin-bottom: 12px;
+    }
+
+    .download-info {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      margin: 24px 0 32px;
+      flex-wrap: wrap;
+    }
+
+    .download-info span {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .download-info .dot {
+      width: 4px;
+      height: 4px;
+      background: var(--gold);
+      border-radius: 50%;
+    }
+
+    /* ═══ FOOTER ═══ */
+    footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 40px 24px;
+      text-align: center;
+    }
+
+    footer p {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+
+    footer a {
+      color: var(--gold);
+      text-decoration: none;
+    }
+
+    /* ═══ RESPONSIVE ═══ */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .stats-bar { gap: 24px; }
+      .stat-value { font-size: 1.4rem; }
+      .hero { padding: 100px 20px 60px; }
+      .hero-actions { flex-direction: column; align-items: center; }
+      .btn { width: 100%; max-width: 300px; justify-content: center; }
+      .download-card { padding: 40px 24px; }
+      .special-item { flex-direction: column; text-align: center; }
+    }
+
+    /* ═══ SCROLL ANIMATIONS ═══ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Effects -->
+  <div class="bg-grid"></div>
+  <div class="bg-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-logo">Avatar Blast</div>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#specials">Powers</a></li>
+      <li><a href="#download">Download</a></li>
+    </ul>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-badge">Free Android Game • No Ads</div>
+    <h1 class="hero-title">
+      <span class="gold">AVATAR</span><br />
+      <span class="white">BLAST</span>
+    </h1>
+    <p class="hero-subtitle">
+      Match elemental gems, unleash devastating powers, and battle through 50+ levels across 5 epic worlds. The ultimate match-3 puzzle adventure.
+    </p>
+    <div class="hero-actions">
+      <a href="https://github.com/PrinceAdedapo/avatar-blast/releases/latest/download/avatar-blast.apk" class="btn btn-primary">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M17.523 2H6.477L2 6.477v11.046L6.477 22h11.046L22 17.523V6.477L17.523 2zM12 17.5l-5.5-5.5h3.5V6h4v6h3.5L12 17.5z"/></svg>
+        Download APK
+      </a>
+      <a href="#features" class="btn btn-secondary">
+        Learn More ↓
+      </a>
+    </div>
+    <div class="stats-bar">
+      <div class="stat-item">
+        <div class="stat-value">50+</div>
+        <div class="stat-label">Levels</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">6</div>
+        <div class="stat-label">Characters</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">5</div>
+        <div class="stat-label">Worlds</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">0</div>
+        <div class="stat-label">Ads</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="container">
+    <div class="reveal">
+      <div class="section-label">Gameplay</div>
+      <h2 class="section-title">Built for Action</h2>
+      <p class="section-desc">Every level is a tactical battle. Race the clock, manage your moves, and chain combos for explosive results.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <div class="feature-icon fi-fire">🔥</div>
+        <h3>Fast-Paced Action</h3>
+        <p>Race against the timer and limited moves. Every swap is a strategic decision that counts toward victory or defeat.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon fi-water">🌊</div>
+        <h3>Cascade Combos</h3>
+        <p>Chain matches together for massive score multipliers. One smart move can trigger an avalanche of destruction.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon fi-earth">🪨</div>
+        <h3>5 Epic Worlds</h3>
+        <p>Journey from ancient temples to volcanic forges. Each world brings unique challenges and tougher goals.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon fi-air">💨</div>
+        <h3>6 Heroes</h3>
+        <p>Each elemental character brings their own gem type and bending style to the board. Master them all.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon fi-gold">⭐</div>
+        <h3>Star Rating</h3>
+        <p>Earn 1-3 stars per level. Chase perfection across all 50+ stages for ultimate bragging rights.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon fi-star">📱</div>
+        <h3>Optimized Performance</h3>
+        <p>Silky smooth on budget phones with 2GB RAM. No lag, no stutter — pure gameplay.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Specials Section -->
+  <section id="specials" class="container">
+    <div class="reveal">
+      <div class="section-label">Powers</div>
+      <h2 class="section-title">Special Gem Abilities</h2>
+      <p class="section-desc">Create powerful gems through strategic matches. Chain them for screen-clearing destruction.</p>
+    </div>
+    <div class="specials-list">
+      <div class="special-item reveal">
+        <div class="special-badge fi-fire">⚡</div>
+        <div>
+          <h4>Line Blast</h4>
+          <p>Match 4 in a row to create a gem that obliterates an entire row or column when matched.</p>
+        </div>
+      </div>
+      <div class="special-item reveal">
+        <div class="special-badge fi-earth">💣</div>
+        <div>
+          <h4>Elemental Bomb</h4>
+          <p>Create an L or T shape match to spawn a bomb that detonates in a devastating 3×3 explosion.</p>
+        </div>
+      </div>
+      <div class="special-item reveal">
+        <div class="special-badge fi-air">🌀</div>
+        <div>
+          <h4>Avatar State</h4>
+          <p>Match 5+ gems to enter the Avatar State — eliminates ALL gems of a chosen color from the board.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Download Section -->
+  <section id="download" class="download-section">
+    <div class="download-card reveal">
+      <div class="section-label">Get It Now</div>
+      <h2 class="section-title">Download Avatar Blast</h2>
+      <p class="section-desc" style="margin: 0 auto;">Free. No ads. No in-app purchases. Just pure elemental puzzle action.</p>
+      <div class="download-info">
+        <span><span class="dot"></span> Android 6.0+</span>
+        <span><span class="dot"></span> ~25MB</span>
+        <span><span class="dot"></span> Offline Play</span>
+        <span><span class="dot"></span> No Permissions</span>
+      </div>
+      <a href="https://github.com/PrinceAdedapo/avatar-blast/releases/latest/download/avatar-blast.apk" class="btn btn-primary">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M17.523 2H6.477L2 6.477v11.046L6.477 22h11.046L22 17.523V6.477L17.523 2zM12 17.5l-5.5-5.5h3.5V6h4v6h3.5L12 17.5z"/></svg>
+        Download APK (v1.0.0)
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>Avatar Blast © 2026 — Built with passion. <a href="https://github.com/PrinceAdedapo/avatar-blast">View Source on GitHub</a></p>
+  </footer>
+
+  <!-- Scroll Reveal Script -->
+  <script>
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.15 });
+    reveals.forEach(el => observer.observe(el));
+  </script>
+
+</body>
+</html>

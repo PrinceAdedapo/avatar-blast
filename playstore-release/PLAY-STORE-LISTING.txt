@@ -1,0 +1,150 @@
+═══════════════════════════════════════════════════════════════
+               AVATAR BLAST — PLAY STORE LISTING
+═══════════════════════════════════════════════════════════════
+
+
+📌 APP NAME:
+Avatar Blast: Gem Quest
+
+
+📌 SHORT DESCRIPTION (80 chars max):
+Match gems, unleash bending powers & save the Four Nations in this epic puzzler!
+
+
+📌 FULL DESCRIPTION:
+
+⚡ THE FOUR NATIONS NEED YOU ⚡
+
+The balance between elements has shattered. Dark spirits flood the lands, corrupting the elemental gems that hold the world together. Only you — alongside the greatest benders ever known — can restore harmony.
+
+━━ THE STORY ━━
+
+A mysterious dark force has scattered powerful elemental gems across every nation. The Fire Nation burns unchecked. The Water Tribes freeze in chaos. The Earth Kingdom crumbles. The Air Temples fall silent. The Spirit World bleeds into reality.
+
+Aang, Korra, Katara, Zuko, Toph, and Sokka unite for one final mission: reclaim the gems, restore balance, and push back the darkness — one match at a time.
+
+YOU are the strategist behind their greatest battle. Guide their elemental powers. Clear the corruption. Save the world.
+
+━━ ACTION-PACKED GAMEPLAY ━━
+
+Avatar Blast is a fast-paced match-3 puzzle game where every swap is a tactical decision:
+
+• MATCH 3+ elemental gems to clear corruption and score points
+• RACE THE CLOCK — complete each mission before time runs out
+• LIMITED MOVES — think like Sokka, every swap must count
+• COLLECT rare gems to unlock new nations and characters
+• CHAIN CASCADES for massive combo multipliers
+
+━━ SPECIAL BENDING POWERS ━━
+
+Master devastating special gem combinations:
+
+• Match 4 → LINE BLAST — A bending strike clears an entire row or column!
+• L or T shape → BOMB — Toph's seismic sense, 3×3 elemental explosion!
+• Match 5+ → AVATAR STATE — Korra channels all elements, eliminates a color!
+
+Chain specials together for screen-shaking destruction.
+
+━━ 50+ LEVELS ACROSS 5 WORLDS ━━
+
+Journey through beautifully crafted battlefields:
+
+🌊 WATER TRIBE — Frozen tundras, shimmering ice gems, survival missions
+🪨 BA SING SE — Mighty walls of jade, collection challenges, earth power
+🔥 FIRE NATION — Volcanic forges, blazing crystals, intense time pressure
+💨 AIR TEMPLE — Floating monasteries, wind-carved jewels, cascade puzzles
+✨ SPIRIT WORLD — Mystical portals, otherworldly energy, dual objectives
+
+Each world brings deadlier challenges, tighter limits, and bigger rewards.
+
+━━ LEGENDARY SQUAD ━━
+
+Fight alongside your heroes:
+
+• AANG — The Last Airbender, master of all elements
+• KORRA — Avatar of the new age, fierce and unstoppable
+• KATARA — Waterbending prodigy, healer and warrior
+• ZUKO — Redeemed Fire Lord, honor forged in flame
+• TOPH — The blind bandit who sees everything through earth
+• SOKKA — The genius strategist with a boomerang and a plan
+
+━━ FEATURES ━━
+
+✓ Interactive tutorial — Iroh himself guides you step by step
+✓ Progressive difficulty — easy to pick up, brutal to master
+✓ 3-star rating — chase perfection on every level
+✓ Silky smooth — optimized for budget phones (2GB RAM friendly)
+✓ Beautiful effects — cascades, explosions, avatar state visuals
+✓ 100% OFFLINE — no WiFi needed, play on the bus, in bed, anywhere
+✓ NO ADS — zero interruptions, pure gameplay
+✓ NO PAY-TO-WIN — your brain is the only weapon you need
+
+━━ THE BATTLE BEGINS NOW ━━
+
+The Four Nations are falling. The gems are scattered. The clock is ticking.
+
+Match. Blast. Bend. Conquer.
+
+Download Avatar Blast: Gem Quest and write your legend.
+
+
+📌 CATEGORY:
+Games > Puzzle
+
+
+📌 TAGS:
+match 3, puzzle, gem, blast, avatar, bending, elements, adventure, strategy, casual, offline
+
+
+📌 CONTENT RATING:
+Everyone (E)
+• No violence, no ads, no in-app purchases
+• Fantasy themes only
+
+
+📌 WHAT'S NEW (Version 1.0.0):
+🚀 Initial Release!
+• 50+ challenging levels across 5 stunning worlds
+• 6 legendary characters with unique bending styles
+• Interactive step-by-step tutorial for new players
+• Special gem combos: Line Blast, Bomb, Avatar State
+• CODM-inspired premium UI design
+• Smooth performance optimized for all Android devices
+• Completely offline — no internet required
+
+
+═══════════════════════════════════════════════════════════════
+               GRAPHIC ASSETS CHECKLIST
+═══════════════════════════════════════════════════════════════
+
+Required for Play Store submission:
+
+☐ App Icon: 512×512 PNG (included: ic_launcher-playstore.png)
+☐ Feature Graphic: 1024×500 PNG (you need to create this)
+☐ Screenshots: min 2, recommended 5-8 (phone: 16:9 or 9:16)
+☐ Short video (optional): 30-120 seconds YouTube link
+
+TIP: Take screenshots from the game showing:
+  1. Home screen with character gems
+  2. Gameplay with a combo happening
+  3. Level complete with 3 stars
+  4. World/level selection map
+  5. A special gem exploding
+
+
+═══════════════════════════════════════════════════════════════
+               PRIVACY POLICY (REQUIRED)
+═══════════════════════════════════════════════════════════════
+
+You need a privacy policy URL. Minimum policy for a game with 
+NO data collection:
+
+"Avatar Blast does not collect, store, or share any personal 
+data. The game runs entirely offline. No analytics, no ads, 
+no tracking. All game progress is stored locally on your device."
+
+Host this on any free website (Google Sites, GitHub Pages, etc.)
+and provide the URL in Play Console.
+
+
+═══════════════════════════════════════════════════════════════
