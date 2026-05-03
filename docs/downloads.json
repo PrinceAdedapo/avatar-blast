@@ -1,11 +1,18 @@
 {
-    "count":  1,
+    "count":  2,
     "logs":  [
                  {
                      "country":  "Nigeria",
                      "time":  "2026-05-03T16:54:04.4138848+01:00",
                      "ip":  "102.89.xx.xx",
                      "ua":  "Test/1.0",
+                     "city":  "Lagos"
+                 },
+                 {
+                     "country":  "Nigeria",
+                     "time":  "2026-05-03T16:54:35.6796560+01:00",
+                     "ip":  "102.89.xx.xx",
+                     "ua":  "Test/2.0 - same user again",
                      "city":  "Lagos"
                  }
              ]
