@@ -173,9 +173,6 @@
   }
   </script>
 
-  <!-- ═══ ANALYTICS — GoatCounter (free, no cookies, privacy-friendly) ═══ -->
-  <script data-goatcounter="https://avatar-blast.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
-
   <!-- ═══ FONTS ═══ -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -647,78 +644,73 @@
     document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 
     // ═══════════════════════════════════════════════════════════════════════
-    // DOWNLOAD TRACKER — Supabase (free tier)
-    // Logs: IP, city, country, timestamp, user_agent
+    // DOWNLOAD TRACKER — GitHub JSON file (docs/downloads.json)
+    // Logs: IP, city, country, timestamp
     // Counts: every click, even duplicates from same user
     // ═══════════════════════════════════════════════════════════════════════
 
-    // ⚠️ REPLACE THESE with your Supabase project values:
-    const SUPABASE_URL = 'https://YOUR_PROJECT_ID.supabase.co';
-    const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY_HERE';
+    const REPO = 'PrinceAdedapo/avatar-blast';
+    const FILE_PATH = 'docs/downloads.json';
+    // ⚠️ PASTE YOUR GITHUB PAT HERE (fine-grained, only "Contents: Read & Write" on this repo):
+    const GH_TOKEN = 'YOUR_GITHUB_PAT_HERE';
 
-    // Load download count on page load
+    // Load download count on page load (no auth needed — public repo)
     (async function loadDownloadCount() {
       try {
-        // Try Supabase first (real click count)
-        const res = await fetch(SUPABASE_URL + '/rest/v1/downloads?select=id', {
-          headers: { 'apikey': SUPABASE_ANON_KEY, 'Prefer': 'count=exact' }
-        });
-        const count = res.headers.get('content-range');
-        if (count) {
-          const total = parseInt(count.split('/')[1]) || 0;
-          const el = document.getElementById('dl-count');
-          if (el && total > 0) { el.textContent = total.toLocaleString(); return; }
-        }
-        // Fallback: GitHub Releases API
-        const ghRes = await fetch('https://api.github.com/repos/PrinceAdedapo/avatar-blast/releases');
-        const releases = await ghRes.json();
-        let ghTotal = 0;
-        releases.forEach(r => r.assets.forEach(a => { ghTotal += a.download_count; }));
+        const res = await fetch('https://princeadedapo.github.io/avatar-blast/downloads.json?t=' + Date.now());
+        const data = await res.json();
         const el = document.getElementById('dl-count');
-        if (el && ghTotal > 0) el.textContent = ghTotal.toLocaleString();
+        if (el) el.textContent = (data.count || 0).toLocaleString();
       } catch(e) { /* silent */ }
     })();
 
-    // Track download click — logs IP, location, user agent to Supabase
+    // Track download click — saves IP, location, timestamp to GitHub JSON
     async function trackDownload() {
       try {
-        // Get visitor IP + location (free, no key needed)
+        // Get visitor IP + location
         const geo = await fetch('https://ipapi.co/json/').then(r => r.json()).catch(() => ({}));
 
-        // Log to Supabase
-        await fetch(SUPABASE_URL + '/rest/v1/downloads', {
-          method: 'POST',
+        // Read current file from GitHub API (need sha to update)
+        const fileRes = await fetch('https://api.github.com/repos/' + REPO + '/contents/' + FILE_PATH, {
+          headers: { 'Authorization': 'token ' + GH_TOKEN }
+        });
+        const fileData = await fileRes.json();
+        const current = JSON.parse(atob(fileData.content));
+
+        // Add new log entry
+        current.count = (current.count || 0) + 1;
+        current.logs.push({
+          ip: geo.ip || 'unknown',
+          city: geo.city || 'unknown',
+          country: geo.country_name || 'unknown',
+          time: new Date().toISOString(),
+          ua: navigator.userAgent
+        });
+
+        // Keep only last 500 logs to avoid file getting too large
+        if (current.logs.length > 500) current.logs = current.logs.slice(-500);
+
+        // Write updated file back to GitHub
+        await fetch('https://api.github.com/repos/' + REPO + '/contents/' + FILE_PATH, {
+          method: 'PUT',
           headers: {
-            'apikey': SUPABASE_ANON_KEY,
-            'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
-            'Content-Type': 'application/json',
-            'Prefer': 'return=minimal'
+            'Authorization': 'token ' + GH_TOKEN,
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            ip: geo.ip || 'unknown',
-            city: geo.city || 'unknown',
-            country: geo.country_name || 'unknown',
-            region: geo.region || 'unknown',
-            user_agent: navigator.userAgent,
-            referrer: document.referrer || 'direct'
+            message: 'download #' + current.count,
+            content: btoa(JSON.stringify(current, null, 2)),
+            sha: fileData.sha
           })
         });
 
-        // Update visible counter immediately
+        // Update counter on page immediately
         const el = document.getElementById('dl-count');
-        if (el) {
-          const current = parseInt(el.textContent.replace(/,/g, '')) || 0;
-          el.textContent = (current + 1).toLocaleString();
-        }
-      } catch(e) { /* don't block download */ }
-
-      // GoatCounter event (backup)
-      if (window.goatcounter && window.goatcounter.count) {
-        window.goatcounter.count({ path: 'download-apk', title: 'APK Download', event: true });
-      }
+        if (el) el.textContent = current.count.toLocaleString();
+      } catch(e) { console.log('track error', e); }
     }
 
-    // Attach to all download links
+    // Attach to all download buttons
     document.querySelectorAll('.btn-dl, .nav-cta').forEach(a => a.addEventListener('click', trackDownload));
   </script>
 
